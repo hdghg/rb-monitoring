@@ -1,6 +1,6 @@
-package com.guthub.hdghg.rbmonitoring.service;
+package com.github.hdghg.rbmonitoring.service;
 
-import com.guthub.hdghg.rbmonitoring.model.RbEntry;
+import com.github.hdghg.rbmonitoring.model.RbEntry;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import org.apache.commons.lang3.StringUtils;

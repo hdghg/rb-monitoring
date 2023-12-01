@@ -1,4 +1,4 @@
-package com.guthub.hdghg.rbmonitoring;
+package com.github.hdghg.rbmonitoring;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

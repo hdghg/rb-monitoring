@@ -1,6 +1,6 @@
-package com.guthub.hdghg.rbmonitoring.service;
+package com.github.hdghg.rbmonitoring.service;
 
-import com.guthub.hdghg.rbmonitoring.model.RbEntry;
+import com.github.hdghg.rbmonitoring.model.RbEntry;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

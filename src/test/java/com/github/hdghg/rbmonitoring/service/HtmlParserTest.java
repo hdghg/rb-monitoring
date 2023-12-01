@@ -1,6 +1,6 @@
-package com.guthub.hdghg.rbmonitoring.service;
+package com.github.hdghg.rbmonitoring.service;
 
-import com.guthub.hdghg.rbmonitoring.model.RbEntry;
+import com.github.hdghg.rbmonitoring.model.RbEntry;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;

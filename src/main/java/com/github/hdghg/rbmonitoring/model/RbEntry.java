@@ -1,4 +1,4 @@
-package com.guthub.hdghg.rbmonitoring.model;
+package com.github.hdghg.rbmonitoring.model;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
