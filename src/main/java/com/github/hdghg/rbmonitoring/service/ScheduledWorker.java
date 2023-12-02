@@ -27,19 +27,21 @@ public class ScheduledWorker {
     private final JDA jda;
     private final long channelId;
     private final RestTemplate restTemplate = new RestTemplate();
+    private final TransitionService transitionService;
 
     private final Map<String, Boolean> statusMap = new HashMap<>();
 
     public ScheduledWorker(
             HtmlParser htmlParser,
             @Value("${discord.bot.token}") String botToken,
-            @Value("${discord.channel.url}") String channelUrl) throws LoginException {
+            @Value("${discord.channel.url}") String channelUrl, TransitionService transitionService) throws LoginException {
         this.htmlParser = htmlParser;
         this.jda = JDABuilder.createDefault(botToken).build();
         this.channelId = Long.parseLong(StringUtils.substringAfterLast(channelUrl, "/"));
+        this.transitionService = transitionService;
     }
 
-    @Scheduled(fixedDelay = 137, timeUnit = TimeUnit.SECONDS, initialDelay = 15)
+    @Scheduled(fixedDelayString = "${interval.check-rb}", timeUnit = TimeUnit.SECONDS, initialDelay = 15)
     public void checkRb() throws IOException {
         log.info("Checking rb status...");
 
@@ -57,12 +59,14 @@ public class ScheduledWorker {
             if (putResult && !entry.isAlive()) {
                 String msg = "РБ (" + entry.getLevel() + ") " + entry.getName() + " умер!";
                 log.info(msg);
+                transitionService.toAliveStatus(entry.getName(), entry.isAlive());
                 jda.getTextChannelById(channelId).sendMessage(msg).queue();
 
             }
             if (!putResult && entry.isAlive()) {
                 String msg = "РБ (" + entry.getLevel() + ") " + entry.getName() + " воскрес!";
                 log.info(msg);
+                transitionService.toAliveStatus(entry.getName(), entry.isAlive());
                 jda.getTextChannelById(channelId).sendMessage(msg).queue();
             }
         }

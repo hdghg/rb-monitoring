@@ -34,3 +34,5 @@ build/
 
 # runner
 run.cmd
+application.properties
+*.s3db
