@@ -39,7 +39,7 @@ public class ScheduledWorker {
         this.channelId = Long.parseLong(StringUtils.substringAfterLast(channelUrl, "/"));
     }
 
-    @Scheduled(fixedDelay = 267, timeUnit = TimeUnit.SECONDS, initialDelay = 15)
+    @Scheduled(fixedDelay = 137, timeUnit = TimeUnit.SECONDS, initialDelay = 15)
     public void checkRb() throws IOException {
         log.info("Checking rb status...");
 
@@ -49,6 +49,9 @@ public class ScheduledWorker {
         for (RbEntry entry : entries) {
             Boolean putResult = statusMap.put(entry.getName(), entry.isAlive());
             if (putResult == null) {
+                continue;
+            }
+            if ("Raid Boss Von Helman".equals(entry.getName())) {
                 continue;
             }
             if (putResult && !entry.isAlive()) {
