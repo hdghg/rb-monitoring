@@ -1,12 +1,9 @@
 package com.github.hdghg.rbmonitoring.service;
 
 import com.github.hdghg.rbmonitoring.model.RbEntry;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -23,21 +20,22 @@ import java.util.concurrent.TimeUnit;
 public class ScheduledWorker {
     private static final Logger log = LoggerFactory.getLogger(ScheduledWorker.class);
 
-    private final HtmlParser htmlParser;
-    private final JDA jda;
-    private final long channelId;
+    @Autowired
+    private HtmlParser htmlParser;
+
+    @Autowired
+    private TransitionService transitionService;
+
+    @Autowired
+    private JdaService jdaService;
+
     private final RestTemplate restTemplate = new RestTemplate();
-    private final TransitionService transitionService;
 
     private final Map<String, Boolean> statusMap = new HashMap<>();
 
     public ScheduledWorker(
-            HtmlParser htmlParser,
-            @Value("${discord.bot.token}") String botToken,
-            @Value("${discord.channel.url}") String channelUrl, TransitionService transitionService) throws LoginException {
+            HtmlParser htmlParser, TransitionService transitionService) throws LoginException {
         this.htmlParser = htmlParser;
-        this.jda = JDABuilder.createDefault(botToken).build();
-        this.channelId = Long.parseLong(StringUtils.substringAfterLast(channelUrl, "/"));
         this.transitionService = transitionService;
     }
 
@@ -54,23 +52,23 @@ public class ScheduledWorker {
                 continue;
             }
             if (putResult && !entry.isAlive()) {
-                String msg = "РБ (" + entry.getLevel() + ") " + entry.getName() + " умер!";
-                log.info(msg);
+                log.info("[dead] RB ({}) {} died!", entry.getLevel(), entry.getName());
                 transitionService.toAliveStatus(entry.getName(), entry.isAlive());
                 if ("Raid Boss Von Helman".equals(entry.getName())) {
                     continue;
                 }
-                jda.getTextChannelById(channelId).sendMessage(msg).queue();
+                String disMsg = "\uD83D\uDD34 РБ (" + entry.getLevel() + ") " + entry.getName() + " умер!";
+                jdaService.sendMessage(disMsg);
 
             }
             if (!putResult && entry.isAlive()) {
-                String msg = "РБ (" + entry.getLevel() + ") " + entry.getName() + " воскрес!";
-                log.info(msg);
+                log.info("[live] RB ({}) {} alive!", entry.getLevel(), entry.getName());
                 transitionService.toAliveStatus(entry.getName(), entry.isAlive());
                 if ("Raid Boss Von Helman".equals(entry.getName())) {
                     continue;
                 }
-                jda.getTextChannelById(channelId).sendMessage(msg).queue();
+                String disMsg = "\uD83D\uDFE2 РБ (" + entry.getLevel() + ") " + entry.getName() + " воскрес!";
+                jdaService.sendMessage(disMsg);
             }
         }
     }
