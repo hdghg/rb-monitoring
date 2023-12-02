@@ -53,19 +53,23 @@ public class ScheduledWorker {
             if (putResult == null) {
                 continue;
             }
-            transitionService.toAliveStatus(entry.getName(), entry.isAlive());
-            if ("Raid Boss Von Helman".equals(entry.getName())) {
-                continue;
-            }
             if (putResult && !entry.isAlive()) {
                 String msg = "РБ (" + entry.getLevel() + ") " + entry.getName() + " умер!";
                 log.info(msg);
+                transitionService.toAliveStatus(entry.getName(), entry.isAlive());
+                if ("Raid Boss Von Helman".equals(entry.getName())) {
+                    continue;
+                }
                 jda.getTextChannelById(channelId).sendMessage(msg).queue();
 
             }
             if (!putResult && entry.isAlive()) {
                 String msg = "РБ (" + entry.getLevel() + ") " + entry.getName() + " воскрес!";
                 log.info(msg);
+                transitionService.toAliveStatus(entry.getName(), entry.isAlive());
+                if ("Raid Boss Von Helman".equals(entry.getName())) {
+                    continue;
+                }
                 jda.getTextChannelById(channelId).sendMessage(msg).queue();
             }
         }
