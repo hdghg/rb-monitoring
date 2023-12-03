@@ -31,7 +31,8 @@ public class AllListener extends ListenerAdapter {
         StringBuilder sb = new StringBuilder("```ml\n");
         for (Transition t : transitions) {
             sb.append(StringUtils.rightPad(StringUtils.lowerCase(t.getName()), len + 2));
-            sb.append(t.isAlive() ? "\"Alive\"" : "Dead").append("\n");
+            sb.append(StringUtils.rightPad(t.isAlive() ? "\"Alive\"" : "Dead", 9));
+            sb.append(t.getAt().toString()).append("\n"); //2023-12-02 14:17:22.427
         }
         sb.append("```");
         event.reply(sb.toString()).setEphemeral(true).queue();
