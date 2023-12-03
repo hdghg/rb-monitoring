@@ -26,4 +26,8 @@ public class TransitionService {
     public List<Transition> fetchAll() {
         return transitionRepository.listAll();
     }
+
+    public List<Transition> current() {
+        return transitionRepository.currentStatus();
+    }
 }

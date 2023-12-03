@@ -28,4 +28,14 @@ public class TransitionRepository {
     public List<Transition> listAll() {
         return jdbcTemplate.query("select * from transition", new BeanPropertyRowMapper<>(Transition.class));
     }
+
+    public List<Transition> currentStatus() {
+        return jdbcTemplate.query("with cte as (\n" +
+                "  select name as name, max(at) as at from transition\n" +
+                "  group by name\n" +
+                ")\n" +
+                "select t.* from transition t\n" +
+                "join cte c on t.name = c.name and t.at = c.at\n" +
+                "order by at desc", new BeanPropertyRowMapper<>(Transition.class));
+    }
 }

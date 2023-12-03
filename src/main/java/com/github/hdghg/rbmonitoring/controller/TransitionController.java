@@ -31,6 +31,11 @@ public class TransitionController {
         return transitionService.fetchAll();
     }
 
+    @GetMapping("/current")
+    public List<Transition> current() {
+        return transitionService.current();
+    }
+
     @GetMapping("/test-message")
     public void testMessage() {
         String disMsg = "Версия 0.0.5:\n- Воскрешения теперь помечаются кружком \uD83D\uDFE2, а смерти - кружком \uD83D\uDD34";
