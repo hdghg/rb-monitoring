@@ -38,7 +38,7 @@ public class TransitionController {
 
     @GetMapping("/test-message")
     public void testMessage() {
-        String disMsg = "Версия 0.0.5:\n- Воскрешения теперь помечаются кружком \uD83D\uDFE2, а смерти - кружком \uD83D\uDD34";
+        String disMsg = "Версия 0.0.8:\n- Добавлена команда /last30 - вывести последние 30 событий убийства/воскрешения";
         jdaService.sendMessage(disMsg);
     }
 }
