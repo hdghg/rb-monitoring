@@ -3,6 +3,7 @@ package com.github.hdghg.rbmonitoring.service;
 import com.github.hdghg.rbmonitoring.service.jdalistener.AllListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,9 @@ public class JdaService {
                 .enableIntents(Collections.singletonList(GatewayIntent.DIRECT_MESSAGES))
                 .addEventListeners(allListener)
                 .build();
-        jda.upsertCommand("last30", "Последние 30 убийств/воскрешений").queue();
-
+        jda.updateCommands()
+                .addCommands(new CommandData("last30", "Последние 30 убийств/воскрешений"))
+                .queue();
         this.channelId = Long.parseLong(StringUtils.substringAfterLast(channelUrl, "/"));
     }
 
