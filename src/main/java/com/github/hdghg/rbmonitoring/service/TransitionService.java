@@ -16,12 +16,17 @@ public class TransitionService {
     private TransitionRepository transitionRepository;
 
     public void toAliveStatus(String name, boolean aliveStatus) {
+        toAliveStatus(name, aliveStatus, Instant.now());
+    }
+
+    public void toAliveStatus(String name, boolean aliveStatus, Instant when) {
         Transition transition = new Transition();
         transition.setName(name);
         transition.setAlive(aliveStatus);
-        transition.setAt(Timestamp.from(Instant.now()));
+        transition.setAt(Timestamp.from(when));
         transitionRepository.insert(transition);
     }
+
 
     public List<Transition> fetchAll() {
         return transitionRepository.listAll();

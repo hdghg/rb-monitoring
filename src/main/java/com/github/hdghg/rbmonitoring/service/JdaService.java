@@ -25,7 +25,7 @@ public class JdaService {
                 .enableIntents(Collections.singletonList(GatewayIntent.DIRECT_MESSAGES))
                 .addEventListeners(allListener)
                 .build();
-        jda.upsertCommand("all", "List all rb").queue();
+        jda.upsertCommand("last30", "Последние 30 убийств/воскрешений").queue();
 
         this.channelId = Long.parseLong(StringUtils.substringAfterLast(channelUrl, "/"));
     }
