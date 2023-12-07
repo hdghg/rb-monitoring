@@ -1,6 +1,6 @@
 package com.github.hdghg.rbmonitoring.service;
 
-import com.github.hdghg.rbmonitoring.service.jdalistener.AllListener;
+import com.github.hdghg.rbmonitoring.service.jdalistener.ActivityListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.security.auth.login.LoginException;
-import java.util.Collections;
+import java.util.Arrays;
 
 @Service
 public class JdaService {
@@ -21,10 +21,17 @@ public class JdaService {
     public JdaService(
             @Value("${discord.bot.token}") String botToken,
             @Value("${discord.channel.url}") String channelUrl,
-            AllListener allListener) throws LoginException {
+            ActivityListener activityListener) throws LoginException {
         this.jda = JDABuilder.createDefault(botToken)
-                .enableIntents(Collections.singletonList(GatewayIntent.DIRECT_MESSAGES))
-                .addEventListeners(allListener)
+                .enableIntents(Arrays.asList(
+                        GatewayIntent.DIRECT_MESSAGES,
+                        GatewayIntent.GUILD_PRESENCES,
+                        GatewayIntent.GUILD_MESSAGE_TYPING,
+                        GatewayIntent.GUILD_MESSAGES,
+                        GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                        GatewayIntent.DIRECT_MESSAGE_TYPING
+                        ))
+                .addEventListeners(activityListener)
                 .build();
         jda.updateCommands()
                 .addCommands(new CommandData("last30", "Последние 30 убийств/воскрешений"))
