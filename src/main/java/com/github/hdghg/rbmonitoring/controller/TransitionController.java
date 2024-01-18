@@ -38,7 +38,7 @@ public class TransitionController {
 
     @GetMapping("/test-message")
     public void testMessage() {
-        String disMsg = "Версия 0.0.8:\n- Добавлена команда /last30 - вывести последние 30 событий убийства/воскрешения";
+        String disMsg = "Версия 0.1.0:\n- Будут выводиться корректные имена РБ, как в игре";
         jdaService.sendMessage(disMsg);
     }
 }

@@ -58,8 +58,9 @@ public class ScheduledWorker {
         byte[] bytes = restTemplate.getForObject("http://l2c4.ru/index.php?x=boss", byte[].class);
         List<RbEntry> newStatus = htmlParser.parse(new ByteArrayInputStream(bytes));
         ensureLevels(newStatus);
+        List<RbEntry> fixedNames = rbInfoRepository.fixNames(newStatus);
 
-        for (RbEntry entry : newStatus) {
+        for (RbEntry entry : fixedNames) {
             Transition oldTransition = statusByName.get(entry.getName());
             if (oldTransition == null) {
                 transitionService.toAliveStatus(entry.getName(), entry.isAlive(), Instant.EPOCH);

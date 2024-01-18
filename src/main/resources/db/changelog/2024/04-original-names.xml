@@ -4,9 +4,8 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.5.xsd">
-    <include file="db/changelog/2023/01-init.xml"/>
-    <include file="db/changelog/2023/02-levels.xml"/>
-    <include file="db/changelog/2023/03-activity.xml"/>
-    <include file="db/changelog/2024/04-original-names.xml"/>
-    <include file="db/changelog/2024/05-names-data.xml"/>
+    <changeSet id="4" author="atokar">
+        <sql>ALTER TABLE rb_info ADD COLUMN correct_name VARCHAR(255)</sql>
+        <sql>ALTER TABLE rb_info ADD COLUMN url VARCHAR(255)</sql>
+    </changeSet>
 </databaseChangeLog>
