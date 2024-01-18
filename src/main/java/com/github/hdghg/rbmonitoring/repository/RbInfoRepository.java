@@ -1,13 +1,11 @@
 package com.github.hdghg.rbmonitoring.repository;
 
-import com.github.hdghg.rbmonitoring.model.RbEntry;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,18 +34,9 @@ public class RbInfoRepository {
         jdbcTemplate.update(sb.toString(), params);
     }
 
-    public List<RbEntry> fixNames(List<RbEntry> rbEntryList) {
+    public Map<String, String> correctNames() {
         List<Map<String, Object>> maps = jdbcTemplate.queryForList("select name, correct_name from rb_info", Collections.emptyMap());
-        Map<Object, Object> nameToCorrectName = maps.stream()
-                .collect(Collectors.toMap(m -> m.get("name"), m -> m.get("correct_name")));
-
-        List<RbEntry> result = new ArrayList<>(rbEntryList.size());
-        for (RbEntry rbEntry : rbEntryList) {
-            RbEntry resultEntry = new RbEntry();
-            resultEntry.setAlive(rbEntry.isAlive());
-            resultEntry.setLevel(rbEntry.getLevel());
-            resultEntry.setName(nameToCorrectName.getOrDefault(rbEntry.getName(), rbEntry.getName()).toString());
-        }
-        return result;
+        return maps.stream()
+                .collect(Collectors.toMap(m -> m.get("name").toString(), m -> m.get("correct_name").toString()));
     }
 }

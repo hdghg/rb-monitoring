@@ -58,31 +58,33 @@ public class ScheduledWorker {
         byte[] bytes = restTemplate.getForObject("http://l2c4.ru/index.php?x=boss", byte[].class);
         List<RbEntry> newStatus = htmlParser.parse(new ByteArrayInputStream(bytes));
         ensureLevels(newStatus);
-        List<RbEntry> fixedNames = rbInfoRepository.fixNames(newStatus);
+        Map<String, String> correctNames = rbInfoRepository.correctNames();
 
-        for (RbEntry entry : fixedNames) {
-            Transition oldTransition = statusByName.get(entry.getName());
-            if (oldTransition == null) {
+        for (RbEntry entry : newStatus) {
+            Transition previousStatus = statusByName.get(entry.getName());
+            if (previousStatus == null) {
                 transitionService.toAliveStatus(entry.getName(), entry.isAlive(), Instant.EPOCH);
                 continue;
             }
-            if (oldTransition.isAlive() && !entry.isAlive()) {
-                log.info("[dead] RB ({}) {} died!", entry.getLevel(), entry.getName());
+            if (previousStatus.isAlive() && !entry.isAlive()) {
+                log.info("[dead] RB ({}) {} died!", entry.getLevel(), correctNames.getOrDefault(entry.getName(), entry.getName()));
                 transitionService.toAliveStatus(entry.getName(), entry.isAlive());
                 if ("Raid Boss Von Helman".equals(entry.getName())) {
                     continue;
                 }
-                String disMsg = "\uD83D\uDD34 РБ (" + entry.getLevel() + ") " + entry.getName() + " умер!";
+                String disMsg = "\uD83D\uDD34 РБ (" + entry.getLevel() + ") "
+                        + correctNames.getOrDefault(entry.getName(), entry.getName()) + " умер!";
                 jdaService.sendMessage(disMsg);
             }
 
-            if (!oldTransition.isAlive() && entry.isAlive()) {
-                log.info("[live] RB ({}) {} alive!", entry.getLevel(), entry.getName());
+            if (!previousStatus.isAlive() && entry.isAlive()) {
+                log.info("[live] RB ({}) {} alive!", entry.getLevel(), correctNames.getOrDefault(entry.getName(), entry.getName()));
                 transitionService.toAliveStatus(entry.getName(), entry.isAlive());
                 if ("Raid Boss Von Helman".equals(entry.getName())) {
                     continue;
                 }
-                String disMsg = "\uD83D\uDFE2 РБ (" + entry.getLevel() + ") " + entry.getName() + " воскрес!";
+                String disMsg = "\uD83D\uDFE2 РБ (" + entry.getLevel() + ") "
+                        + correctNames.getOrDefault(entry.getName(), entry.getName()) + " воскрес!";
                 jdaService.sendMessage(disMsg);
             }
         }
