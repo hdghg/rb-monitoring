@@ -9,4 +9,5 @@
     <include file="db/changelog/2023/03-activity.xml"/>
     <include file="db/changelog/2024/04-original-names.xml"/>
     <include file="db/changelog/2024/05-names-data.xml"/>
+    <include file="db/changelog/2024/06-schema-for-bonus.xml"/>
 </databaseChangeLog>

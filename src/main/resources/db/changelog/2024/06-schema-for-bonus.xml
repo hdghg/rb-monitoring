@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.5.xsd">
+    <changeSet id="6" author="atokar">
+        <sql>CREATE TABLE character (
+                character_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                nickname        VARCHAR(255) NOT NULL UNIQUE,
+                party           VARCHAR(255)
+            )
+        </sql>
+        <sql>CREATE TABLE bonus_log (
+                bonus_log_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                at              TIMESTAMP WITH TIME ZONE,
+                at_msk          type VARCHAR(255) NOT NULL,
+                user            VARCHAR(255) NOT NULL,
+                character_id    INTEGER REFERENCES character(character_id) ON DELETE SET NULL
+            )
+        </sql>
+    </changeSet>
+</databaseChangeLog>

@@ -1,9 +1,11 @@
 package com.github.hdghg.rbmonitoring.service;
 
-import com.github.hdghg.rbmonitoring.service.jdalistener.ActivityListener;
+import com.github.hdghg.rbmonitoring.service.jdalistener.BonusCommandListener;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,7 +23,7 @@ public class JdaService {
     public JdaService(
             @Value("${discord.bot.token}") String botToken,
             @Value("${discord.channel.url}") String channelUrl,
-            ActivityListener activityListener) throws LoginException {
+            BonusCommandListener bonusCommandListener) throws LoginException {
         this.jda = JDABuilder.createDefault(botToken)
                 .enableIntents(Arrays.asList(
                         GatewayIntent.DIRECT_MESSAGES,
@@ -30,11 +32,19 @@ public class JdaService {
                         GatewayIntent.GUILD_MESSAGES,
                         GatewayIntent.GUILD_MESSAGE_REACTIONS,
                         GatewayIntent.DIRECT_MESSAGE_TYPING
-                        ))
-                .addEventListeners(activityListener)
+                ))
+                .addEventListeners(bonusCommandListener)
                 .build();
         jda.updateCommands()
-                .addCommands(new CommandData("last30", "Последние 30 убийств/воскрешений"))
+                .addCommands(
+                        new CommandData("reg-bonus", "Добавить персонажа в бонусы")
+                                .addOptions(new OptionData(OptionType.STRING, "character", "Имя персонажа", true),
+                                        new OptionData(OptionType.STRING, "party", "Имя пати")),
+                        new CommandData("dereg-bonus", "Удалить персонажа из мониторинга бонусов")
+                                .addOptions(new OptionData(OptionType.STRING, "character", "Имя персонажа", true)),
+                        new CommandData("bonus", "Показать состояние бонусов")
+                                .addOptions(new OptionData(OptionType.STRING, "party", "Имя пати"))
+                )
                 .queue();
         this.channelId = Long.parseLong(StringUtils.substringAfterLast(channelUrl, "/"));
     }
