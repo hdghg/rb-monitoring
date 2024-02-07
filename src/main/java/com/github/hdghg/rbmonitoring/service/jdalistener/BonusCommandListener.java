@@ -106,7 +106,7 @@ public class BonusCommandListener extends ListenerAdapter {
                 CharacterBonus cb = last5.get(i);
                 Duration duration = duration(cb.getAt());
                 String locDuration = " (" + prettifyDuration(duration) + ")";
-                buttons.add(Button.primary("past" + cb.getId() + ":" + partyStr, cb.getNickname() + locDuration));
+                buttons.add(Button.primary("past" + cb.getId() + ":" + partyStr, cb.getNickname() + locDuration).asDisabled());
             }
             actionRows.add(ActionRow.of(buttons));
         }
