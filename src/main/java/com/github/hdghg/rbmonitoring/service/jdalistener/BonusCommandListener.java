@@ -3,16 +3,25 @@ package com.github.hdghg.rbmonitoring.service.jdalistener;
 import com.github.hdghg.rbmonitoring.model.CharacterBonus;
 import com.github.hdghg.rbmonitoring.repository.BonusRepository;
 import com.github.hdghg.rbmonitoring.repository.CharacterRepository;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyAction;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.sql.Timestamp;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,17 +67,45 @@ public class BonusCommandListener extends ListenerAdapter {
         event.reply(reply).setEphemeral(true).queue();
     }
 
-    private void printButtons(SlashCommandEvent event, String party) {
+    private Duration duration(Timestamp timestamp) {
+        Instant start = timestamp == null ? new Timestamp(0).toInstant() : timestamp.toInstant();
+        return Duration.between(start, Instant.now());
+    }
+
+    private String prettifyDuration(Duration duration) {
+        if (duration.compareTo(Duration.ofHours(72)) > 0) {
+            return "> 3д";
+        } else if (duration.compareTo(Duration.ofHours(3)) > 0) {
+            return duration.toHours() + "ч";
+        } else {
+            return duration.toMinutes() + "мин";
+        }
+    }
+
+    private ButtonStyle buttonStyle(Duration duration) {
+        if (duration.compareTo(Duration.ofHours(32)) > 0) {
+            return ButtonStyle.DANGER;
+        } else if (duration.compareTo(Duration.ofHours(20)) > 0) {
+            return ButtonStyle.SUCCESS;
+        } else {
+            return ButtonStyle.SECONDARY;
+        }
+    }
+
+    private Message bonusMessage(String party) {
         Pair<List<CharacterBonus>, List<CharacterBonus>> bonusStatus = bonusRepository.bonusStatus(party);
         List<CharacterBonus> last5 = bonusStatus.getLeft();
         List<CharacterBonus> next20 = bonusStatus.getRight();
-        ReplyAction replyAction = event.reply("Раскладка по бонусам:").setEphemeral(true);
+        List<ActionRow> actionRows = new ArrayList<>();
         if (!last5.isEmpty()) {
             List<Button> buttons = new ArrayList<>();
             for (int i = 0; i < last5.size(); i++) {
-                buttons.add(Button.primary("1row" + i, last5.get(i).getNickname()));
+                CharacterBonus cb = last5.get(i);
+                Duration duration = duration(cb.getAt());
+                String locDuration = "(" + prettifyDuration(duration) + ")";
+                buttons.add(Button.primary("past" + cb.getId(), cb.getNickname() + locDuration));
             }
-            replyAction.addActionRow(buttons);
+            actionRows.add(ActionRow.of(buttons));
         }
         if (!next20.isEmpty()) {
             List<List<CharacterBonus>> partitions = ListUtils.partition(next20, 5);
@@ -76,12 +113,21 @@ public class BonusCommandListener extends ListenerAdapter {
                 List<CharacterBonus> partition = partitions.get(j);
                 List<Button> buttons = new ArrayList<>();
                 for (int i = 0; i < partition.size(); i++) {
-                    buttons.add(Button.primary(j + "row" + i, partition.get(i).getNickname()));
+                    CharacterBonus cb = partition.get(i);
+                    Duration duration = duration(cb.getAt());
+                    String locDuration = "(" + prettifyDuration(duration) + ")";
+                    buttons.add(Button.of(buttonStyle(duration), "" + cb.getId(), cb.getNickname() + locDuration));
                 }
-                replyAction.addActionRow(buttons);
+                actionRows.add(ActionRow.of(buttons));
             }
         }
-        replyAction.queue();
+        return new MessageBuilder("Раскладка по бонусам:")
+                .setActionRows(actionRows)
+                .build();
+    }
+
+    private void printButtons(SlashCommandEvent event, String party) {
+        event.reply(bonusMessage(party)).setEphemeral(true).queue();
     }
 
     @Override
@@ -97,45 +143,19 @@ public class BonusCommandListener extends ListenerAdapter {
             deregister(event);
         } else if (event.getName().equalsIgnoreCase("bonus")) {
             printButtons(event, party);
-
-//            event.reply("bonbus")
-//                    .setEphemeral(true)
-//                    .addActionRow(
-//                            Button.primary("1row1", "Sela (90min)"),
-//                            Button.primary("1row2", "Vardas (80min)"),
-//                            Button.primary("1row3", "IIaJIbMa (45min)"),
-//                            Button.primary("1row4", "POSTOK (30min)"),
-//                            Button.primary("1row5", "DejaVu(11min)")
-//                    )
-//                    .addActionRow(
-//                            Button.danger("2row1", "ptahaPP (44h)"),
-//                            Button.danger("2row2", "ptahaEE (44h)"),
-//                            Button.success("2row3", "ptahaDD (25h)"),
-//                            Button.success("2row4", "Anel (24h)"),
-//                            Button.success("2row5", "Yavanna (23h)")
-//                    ).addActionRow(
-//                            Button.success("3row1", "Nessa (22h)"),
-//                            Button.success("3row2", "Xpom (21h)"),
-//                            Button.success("3row3", "KAJIbCOH (20h)"),
-//                            Button.secondary("3row4", "TMC (19h)"),
-//                            Button.secondary("3row5", "RyanGosling (17h)")
-//                    ).addActionRow(
-//                            Button.secondary("4row1", "witchy (16h)"),
-//                            Button.secondary("4row2", "abc (16h)"),
-//                            Button.secondary("4row3", "asdasd (15h)"),
-//                            Button.secondary("4row4", "sddhgff (13h)"),
-//                            Button.secondary("4row5", "dfdfg (11h)")
-//                    )
-//                    .addActionRow(
-//                            Button.secondary("5row1", "dsdfsdfs (9h)"),
-//                            Button.secondary("5row2", "abcd (2h)"),
-//                            Button.secondary("5row3", "Sela (90min)"),
-//                            Button.secondary("5row4", "Vardas (80min)"),
-//                            Button.secondary("5row5", "IIaJIbMa (45min)")
-//                    )
-//                    .queue();
-
-
         }
+    }
+
+    @Override
+    public void onButtonClick(@NotNull ButtonClickEvent event) {
+        Button button = event.getButton();
+        if (button == null) {
+            event.reply("error - no button").setEphemeral(true).queue();
+            return;
+        }
+        int id = Integer.parseInt(StringUtils.removeStart(button.getId(), "past"));
+        bonusRepository.registerBonusTaken(id);
+
+        event.getInteraction().editMessage(bonusMessage(null)).queue();
     }
 }
