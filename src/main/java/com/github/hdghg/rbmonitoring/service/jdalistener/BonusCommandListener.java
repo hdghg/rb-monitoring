@@ -77,8 +77,10 @@ public class BonusCommandListener extends ListenerAdapter {
             return ">3д";
         } else if (duration.compareTo(Duration.ofHours(3)) > 0) {
             return duration.toHours() + "ч";
-        } else {
+        } else if (duration.compareTo(Duration.ofMinutes(2)) > 0) {
             return duration.toMinutes() + "мин";
+        } else {
+            return duration.toMillis() / 1000 + "сек";
         }
     }
 
@@ -94,6 +96,7 @@ public class BonusCommandListener extends ListenerAdapter {
 
     private Message bonusMessage(String party) {
         Pair<List<CharacterBonus>, List<CharacterBonus>> bonusStatus = bonusRepository.bonusStatus(party);
+        String partyStr = StringUtils.defaultString(party);
         List<CharacterBonus> last5 = bonusStatus.getLeft();
         List<CharacterBonus> next20 = bonusStatus.getRight();
         List<ActionRow> actionRows = new ArrayList<>();
@@ -103,7 +106,7 @@ public class BonusCommandListener extends ListenerAdapter {
                 CharacterBonus cb = last5.get(i);
                 Duration duration = duration(cb.getAt());
                 String locDuration = " (" + prettifyDuration(duration) + ")";
-                buttons.add(Button.primary("past" + cb.getId(), cb.getNickname() + locDuration));
+                buttons.add(Button.primary("past" + cb.getId() + ":" + partyStr, cb.getNickname() + locDuration));
             }
             actionRows.add(ActionRow.of(buttons));
         }
@@ -116,13 +119,13 @@ public class BonusCommandListener extends ListenerAdapter {
                     CharacterBonus cb = partition.get(i);
                     Duration duration = duration(cb.getAt());
                     String locDuration = " (" + prettifyDuration(duration) + ")";
-                    buttons.add(Button.of(buttonStyle(duration), "" + cb.getId(), cb.getNickname() + locDuration));
+                    buttons.add(Button.of(buttonStyle(duration), "" + cb.getId() + ":" + partyStr, cb.getNickname() + locDuration));
                 }
                 actionRows.add(ActionRow.of(buttons));
             }
         }
         return new MessageBuilder("**Раскладка по бонусам.**\n" +
-                "Возьмите бонусы для персонажей в красных и зеленых прямоугольниках, после этого нажмите на соответствующую кнопку.")
+                "Возьмите бонусы для персонажей в красных и зеленых прямоугольниках, после этого нажмите на соответствующий прямоугольник.")
                 .setActionRows(actionRows)
                 .build();
     }
@@ -138,6 +141,12 @@ public class BonusCommandListener extends ListenerAdapter {
                 .filter(o -> "party".equals(o.getName()))
                 .map(OptionMapping::getAsString)
                 .findFirst().orElse(null);
+        if (party != null && party.contains(":")) {
+            event.reply("Ошибка. Имя party не может содержать двоеточий").setEphemeral(true).queue();
+        }
+        if (party != null && party.length() > 12) {
+            event.reply("Ошибка. Имя party не может быть длиннее 12 символов").setEphemeral(true).queue();
+        }
         if (event.getName().equalsIgnoreCase("reg-bonus")) {
             register(event, party);
         } else if (event.getName().equalsIgnoreCase("dereg-bonus")) {
@@ -154,9 +163,16 @@ public class BonusCommandListener extends ListenerAdapter {
             event.reply("error - no button").setEphemeral(true).queue();
             return;
         }
-        int id = Integer.parseInt(StringUtils.removeStart(button.getId(), "past"));
+        String idParty = StringUtils.removeStart(button.getId(), "past");
+        if (idParty == null) {
+            event.reply("error - empty id").setEphemeral(true).queue();
+            return;
+        }
+        String[] split = idParty.split(":");
+        int id = Integer.parseInt(split[0]);
+        String party = split.length > 1 ? split[1] : null;
         bonusRepository.registerBonusTaken(id);
 
-        event.getInteraction().editMessage(bonusMessage(null)).queue();
+        event.getInteraction().editMessage(bonusMessage(party)).queue();
     }
 }

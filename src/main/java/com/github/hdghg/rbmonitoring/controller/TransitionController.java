@@ -38,7 +38,11 @@ public class TransitionController {
 
     @GetMapping("/test-message")
     public void testMessage() {
-        String disMsg = "Версия 0.1.0:\n- Будут выводиться корректные имена РБ, как в игре";
+        String disMsg = "Версия 0.2.0: Добавлены команды для отслеживания бонусов: /bonus, /reg-bonus, /dereg-bonus\n" +
+                "- /reg-bonus добавляет персонажа в систему\n" +
+                "- /dereg-bonus удаляет персонажа из системы\n" +
+                "- /bonus Выводит раскладку по бонусам, с возможностью регистрации факта взятия бонуса\n" +
+                "- Все команды и ответы на них видны только тому кто выполняет команды, поэтому можно выполнять команды не боясь заспамить чат";
         jdaService.sendMessage(disMsg);
     }
 }

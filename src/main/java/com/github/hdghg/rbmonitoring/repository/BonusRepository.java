@@ -36,7 +36,7 @@ public class BonusRepository {
                 "order by at asc nulls first\n" +
                 "limit 20\n";
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("party", params, Types.VARCHAR);
+        params.addValue("party", party, Types.VARCHAR);
         List<CharacterBonus> last5 = jdbcTemplate.query(sqlLast5, params, new BeanPropertyRowMapper<>(CharacterBonus.class));
         Collections.reverse(last5);
         List<CharacterBonus> next20 = jdbcTemplate.query(sqlNext20, params, new BeanPropertyRowMapper<>(CharacterBonus.class));
