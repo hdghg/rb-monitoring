@@ -74,7 +74,7 @@ public class BonusCommandListener extends ListenerAdapter {
 
     private String prettifyDuration(Duration duration) {
         if (duration.compareTo(Duration.ofHours(72)) > 0) {
-            return "> 3д";
+            return ">3д";
         } else if (duration.compareTo(Duration.ofHours(3)) > 0) {
             return duration.toHours() + "ч";
         } else {
@@ -102,7 +102,7 @@ public class BonusCommandListener extends ListenerAdapter {
             for (int i = 0; i < last5.size(); i++) {
                 CharacterBonus cb = last5.get(i);
                 Duration duration = duration(cb.getAt());
-                String locDuration = "(" + prettifyDuration(duration) + ")";
+                String locDuration = " (" + prettifyDuration(duration) + ")";
                 buttons.add(Button.primary("past" + cb.getId(), cb.getNickname() + locDuration));
             }
             actionRows.add(ActionRow.of(buttons));
@@ -115,13 +115,14 @@ public class BonusCommandListener extends ListenerAdapter {
                 for (int i = 0; i < partition.size(); i++) {
                     CharacterBonus cb = partition.get(i);
                     Duration duration = duration(cb.getAt());
-                    String locDuration = "(" + prettifyDuration(duration) + ")";
+                    String locDuration = " (" + prettifyDuration(duration) + ")";
                     buttons.add(Button.of(buttonStyle(duration), "" + cb.getId(), cb.getNickname() + locDuration));
                 }
                 actionRows.add(ActionRow.of(buttons));
             }
         }
-        return new MessageBuilder("Раскладка по бонусам:")
+        return new MessageBuilder("**Раскладка по бонусам.**\n" +
+                "Возьмите бонусы для персонажей в красных и зеленых прямоугольниках, после этого нажмите на соответствующую кнопку.")
                 .setActionRows(actionRows)
                 .build();
     }
