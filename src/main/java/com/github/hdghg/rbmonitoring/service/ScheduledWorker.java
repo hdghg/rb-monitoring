@@ -7,12 +7,14 @@ import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -35,11 +37,15 @@ public class ScheduledWorker {
     @Autowired
     private JdaService jdaService;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
-    public ScheduledWorker(HtmlParser htmlParser, TransitionService transitionService) {
+    public ScheduledWorker(HtmlParser htmlParser, TransitionService transitionService, RestTemplateBuilder restTemplateBuilder) {
         this.htmlParser = htmlParser;
         this.transitionService = transitionService;
+        this.restTemplate = restTemplateBuilder
+                .setConnectTimeout(Duration.ofSeconds(15))
+                .setReadTimeout(Duration.ofSeconds(15))
+                .build();
     }
 
     private void ensureLevels(List<RbEntry> rbEntries) {
